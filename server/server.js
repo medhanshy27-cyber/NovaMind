@@ -15,7 +15,7 @@ app.use(
   cors({
     origin:[
       "http://localhost:5173",
-      "https://nova-mind-rizelp4u0-medhanshyadavs-projects.vercel.app"
+      "https://nova-mind-gn43iueof-medhanshyadavs-projects.vercel.app"
     ],
     credentials: true,
   })
