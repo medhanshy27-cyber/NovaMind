@@ -13,8 +13,10 @@ const app = express();
 // Middleware
 app.use(
   cors({
-    origin:
+    origin:[
       "http://localhost:5173",
+      "https://nova-mind-rizelp4u0-medhanshyadavs-projects.vercel.app"
+    ],
     credentials: true,
   })
 );
