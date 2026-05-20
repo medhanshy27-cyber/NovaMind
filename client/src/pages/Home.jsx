@@ -148,6 +148,20 @@ function Home() {
           setMode={setMode}
         />
 
+        <div className="flex flex-col flex-1">
+  <NavbarV2
+    mode={mode}
+    setMode={setMode}
+  />
+
+  <ChatWindowV2
+    chats={chats}
+    setChats={setChats}
+    currentChatIndex={currentChatIndex}
+    mode={mode}
+  />
+</div>
+
         <div className="flex-1 p-6">
 
           <ChatWindowV2
