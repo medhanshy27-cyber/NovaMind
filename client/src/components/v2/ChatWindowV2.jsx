@@ -23,9 +23,9 @@ import { generateResponse } from "../../services/gemini";
 import TypingLoader from "./TypingLoader";
 
 function ChatWindowV2({
-  chats,
+  chats = [],
   setChats,
-  currentChatIndex,
+  currentChatIndex = 0,
   mode,
 }) {
   const [input, setInput] =
@@ -37,8 +37,22 @@ function ChatWindowV2({
   const messagesEndRef =
     useRef(null);
 
+  // SAFE current chat
   const currentChat =
-    chats[currentChatIndex];
+    Array.isArray(chats) &&
+    chats[currentChatIndex]
+      ? chats[currentChatIndex]
+      : {
+          messages: [],
+        };
+
+  // SAFE messages array
+  const messages =
+    Array.isArray(
+      currentChat?.messages
+    )
+      ? currentChat.messages
+      : [];
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView(
@@ -46,10 +60,7 @@ function ChatWindowV2({
         behavior: "smooth",
       }
     );
-  }, [
-    currentChat?.messages,
-    loading,
-  ]);
+  }, [messages, loading]);
 
   const startListening = () => {
     const SpeechRecognition =
@@ -84,11 +95,40 @@ function ChatWindowV2({
 
   const handleSend =
     async () => {
-      if (!input.trim())
+      if (
+        !input.trim() ||
+        !Array.isArray(chats)
+      )
         return;
 
       const updatedChats =
         [...chats];
+
+      // ensure current chat exists
+      if (
+        !updatedChats[
+          currentChatIndex
+        ]
+      ) {
+        updatedChats[
+          currentChatIndex
+        ] = {
+          messages: [],
+        };
+      }
+
+      // ensure messages is array
+      if (
+        !Array.isArray(
+          updatedChats[
+            currentChatIndex
+          ].messages
+        )
+      ) {
+        updatedChats[
+          currentChatIndex
+        ].messages = [];
+      }
 
       updatedChats[
         currentChatIndex
@@ -107,32 +147,33 @@ function ChatWindowV2({
 
       try {
         const prompts = {
-  Study:
-    "You are a smart study assistant. Explain things simply, exam-focused, and beginner-friendly.",
+          Study:
+            "You are a smart study assistant. Explain things simply, exam-focused, and beginner-friendly.",
 
-  Coding:
-    "You are an expert software engineer. Help with coding, debugging, DSA, and programming concepts clearly.",
+          Coding:
+            "You are an expert software engineer. Help with coding, debugging, DSA, and programming concepts clearly.",
 
-  Creative:
-    "You are a creative assistant helping with ideas, writing, imagination, content creation, and brainstorming.",
+          Creative:
+            "You are a creative assistant helping with ideas, writing, imagination, content creation, and brainstorming.",
 
-  Career:
-    "You are a placement and career mentor helping with resumes, internships, interview prep, and career guidance.",
-};
+          Career:
+            "You are a placement and career mentor helping with resumes, internships, interview prep, and career guidance.",
+        };
 
-const aiReply =
-  await generateResponse(
-    `${prompts[mode]}
+        const aiReply =
+          await generateResponse(
+            `${prompts[mode]}
 
 User Question:
 ${userInput}`
-  
           );
 
         updatedChats[
           currentChatIndex
         ].messages.push({
-          text: aiReply,
+          text:
+            aiReply ||
+            "No response generated",
           sender: "bot",
         });
 
@@ -142,9 +183,22 @@ ${userInput}`
       } catch (
         error
       ) {
-        console.log(
+        console.error(
+          "Chat error:",
           error
         );
+
+        updatedChats[
+          currentChatIndex
+        ].messages.push({
+          text:
+            "Something went wrong. Try again.",
+          sender: "bot",
+        });
+
+        setChats([
+          ...updatedChats,
+        ]);
       }
 
       setLoading(false);
@@ -179,32 +233,27 @@ ${userInput}`
         <div className="bg-[#5B7FFF]/10 border border-[#5B7FFF]/20 px-4 py-2 rounded-2xl text-[#A5B4FC] text-sm">
           {mode} Mode
         </div>
-
       </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-8 space-y-6 bg-[#09090B]">
 
-        {currentChat?.messages
-          ?.length === 0 &&
+        {messages.length === 0 &&
           !loading && (
             <div className="h-full flex flex-col items-center justify-center text-center">
 
-              <div className="absolute w-[500px] h-[500px] rounded-full bg-[#5B7FFF]/10 blur-[120px]" />
-
-              <h1 className="text-7xl font-bold bg-gradient-to-r from-[#FFFFFF] via-[#A5B4FC] to-[#7A5CFA] bg-clip-text text-transparent z-10">
+              <h1 className="text-7xl font-bold bg-gradient-to-r from-[#FFFFFF] via-[#A5B4FC] to-[#7A5CFA] bg-clip-text text-transparent">
                 NovaMind
               </h1>
 
-              <p className="text-[#9CA3AF] mt-5 text-lg z-10">
+              <p className="text-[#9CA3AF] mt-5 text-lg">
                 Think Faster.
                 Learn Smarter.
               </p>
-
             </div>
           )}
 
-        {currentChat?.messages?.map(
+        {messages.map(
           (
             msg,
             index
@@ -234,42 +283,8 @@ ${userInput}`
                     : "bg-[#1A1F2E] border border-white/[0.05] text-[#F5F7FA]"
                 }`}
               >
-                <ReactMarkdown
-                  components={{
-                    code({
-                      children,
-                      className,
-                    }) {
-                      const match =
-                        /language-(\w+)/.exec(
-                          className ||
-                            ""
-                        );
-
-                      return match ? (
-                        <SyntaxHighlighter
-                          style={
-                            oneDark
-                          }
-                          language={
-                            match[1]
-                          }
-                        >
-                          {String(
-                            children
-                          )}
-                        </SyntaxHighlighter>
-                      ) : (
-                        <code className="bg-black/20 px-2 py-1 rounded">
-                          {
-                            children
-                          }
-                        </code>
-                      );
-                    },
-                  }}
-                >
-                  {msg.text}
+                <ReactMarkdown>
+                  {msg.text || ""}
                 </ReactMarkdown>
               </div>
             </motion.div>
@@ -292,7 +307,7 @@ ${userInput}`
 
         <div className="bg-[#1A1F2E] border border-white/[0.06] rounded-[28px] px-5 py-4 flex items-center">
 
-          <button className="text-[#9CA3AF] text-xl mr-4 hover:text-white transition">
+          <button className="text-[#9CA3AF] text-xl mr-4">
             <FiPaperclip />
           </button>
 
@@ -308,14 +323,14 @@ ${userInput}`
             onKeyDown={
               handleKeyDown
             }
-            className="flex-1 bg-transparent outline-none text-[#F5F7FA] placeholder-[#6B7280]"
+            className="flex-1 bg-transparent outline-none text-[#F5F7FA]"
           />
 
           <button
             onClick={
               startListening
             }
-            className="text-[#A5B4FC] text-xl mr-4 hover:scale-110 transition"
+            className="text-[#A5B4FC] text-xl mr-4"
           >
             <FiMic />
           </button>
@@ -324,11 +339,10 @@ ${userInput}`
             onClick={
               handleSend
             }
-            className="w-12 h-12 rounded-full bg-gradient-to-r from-[#5B7FFF] to-[#7A5CFA] flex items-center justify-center text-white hover:scale-105 transition"
+            className="w-12 h-12 rounded-full bg-gradient-to-r from-[#5B7FFF] to-[#7A5CFA] flex items-center justify-center text-white"
           >
             <FiSend />
           </button>
-
         </div>
       </div>
     </div>
