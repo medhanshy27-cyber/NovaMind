@@ -34,7 +34,7 @@ function Signup() {
       try {
         const res =
           await axios.post(
-            "https://novamind-backend-1b22.onrender.comp",
+            "https://novamind-backend-1b22.onrender.com/api/auth/signup",
             formData
           );
 
