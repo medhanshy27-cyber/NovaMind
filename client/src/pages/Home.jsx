@@ -162,18 +162,7 @@ function Home() {
   />
 </div>
 
-        <div className="flex-1 p-6">
-
-          <ChatWindowV2
-            chats={chats}
-            setChats={setChats}
-            currentChatIndex={
-              currentChatIndex
-            }
-            mode={mode}
-          />
-
-        </div>
+        
 
       </div>
     </div>
