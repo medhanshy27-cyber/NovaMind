@@ -66,7 +66,7 @@ function Sidebar({
             No chats yet
           </div>
         ) : (
-          safeChats.map(
+          (Array.isArray(chats) ? chats : []).map(
             (chat, index) => (
               <div
                 key={index}

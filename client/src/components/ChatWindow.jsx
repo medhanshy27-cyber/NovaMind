@@ -208,7 +208,10 @@ function ChatWindow({
             </div>
           )}
 
-        {currentChat?.messages?.map(
+        {(Array.isArray(currentChat?.messages)
+  ? currentChat.messages
+  : []
+).map(
           (
             msg,
             index

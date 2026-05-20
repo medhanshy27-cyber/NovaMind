@@ -253,7 +253,7 @@ ${userInput}`
             </div>
           )}
 
-        {messages.map(
+        {(Array.isArray(messages) ? messages : []).map(
           (
             msg,
             index
