@@ -7,6 +7,7 @@ import axios from "axios";
 
 import SidebarV2 from "../components/v2/SidebarV2";
 import ChatWindowV2 from "../components/v2/ChatWindowV2";
+import NavbarV2 from "../components/v2/NavbarV2";
 import BackgroundGlow from "../components/BackgroundGlow";
 
 function Home() {
