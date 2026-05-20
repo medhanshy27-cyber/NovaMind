@@ -33,7 +33,7 @@ function Home() {
         try {
           const res =
             await axios.get(
-              "http://localhost:5000/api/chat",
+              "https://novamind-backend-1b22.onrender.com",
               {
                 headers: {
                   Authorization: `Bearer ${token}`,
@@ -82,7 +82,7 @@ function Home() {
 
         try {
           await axios.post(
-            "http://localhost:5000/api/chat/save",
+            "https://novamind-backend-1b22.onrender.com",
             {
               chats,
             },
