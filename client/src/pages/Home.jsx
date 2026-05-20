@@ -46,7 +46,11 @@ function Home() {
             0
           ) {
             setChats(
-              res.data
+              Array.isArray(res.data)
+    ? res.data
+    : Array.isArray(res.data.chats)
+    ? res.data.chats
+    : []
             );
           } else {
             setChats([
